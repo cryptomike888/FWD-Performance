@@ -5,6 +5,38 @@ import numpy as np
 import yfinance as yf
 from datetime import datetime
 
+# 🔧 Inject dark theme CSS
+st.markdown(
+    """
+    <style>
+    body {
+        background-color: #111111;
+        color: #f1f1f1;
+    }
+    .stApp {
+        background-color: #111111;
+    }
+    .css-18e3th9, .css-1d391kg, .css-1dp5vir, .css-1v0mbdj, .st-bb, .st-bc {
+        background-color: #1e1e1e;
+        color: #f1f1f1;
+    }
+    .stButton > button {
+        background-color: #333333;
+        color: white;
+        border-radius: 6px;
+    }
+    .stButton > button:hover {
+        background-color: #444444;
+    }
+    .stDataFrame, .stTable {
+        background-color: #1e1e1e;
+        color: #f1f1f1;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 st.set_page_config(page_title="🔭 FWD Projector", layout="centered")
 st.title("🔭 FWD Projector")
 st.markdown("Analyze what happens after key price behaviors, based on historical data.")
@@ -57,9 +89,8 @@ def find_matches_reversal(df, open_up_pct, close_down_pct):
         open_change = ((open_price - prev_close) / prev_close) * 100
         close_change = ((close_price - open_price) / open_price) * 100
 
-        if float(open_change.iloc[0]) >= open_up_pct and float(close_change.iloc[0]) <= -close_down_pct:
-
-           matches.append(df.index[i])
+        if float(open_change) >= open_up_pct and float(close_change) <= -close_down_pct:
+            matches.append(df.index[i])
     return matches
 
 def calculate_forward_returns(df, match_dates, months_forward=[1, 3, 6, 12]):
@@ -78,7 +109,6 @@ def calculate_forward_returns(df, match_dates, months_forward=[1, 3, 6, 12]):
                 price_future = prices.iloc[idx_future]
                 fwd_return = (price_future / price_now - 1) * 100
                 row[f"{m}M Forward Return"] = f"{float(fwd_return):.2f}%"
-
             else:
                 row[f"{m}M Forward Return"] = "N/A"
 
@@ -110,10 +140,9 @@ if st.button("Run FWD Projector"):
         except:
             st.warning("⚠️ Could not calculate summary stats due to formatting issue.")
 
-
         # CSV Download
         csv = result_df.to_csv(index=False).encode('utf-8')
         st.download_button("📥 Download CSV", data=csv, file_name="fwd_projector_results.csv", mime="text/csv")
-
     else:
         st.warning("No matching periods found.")
+
